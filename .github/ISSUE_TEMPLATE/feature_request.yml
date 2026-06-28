@@ -3,15 +3,6 @@ description: Propose a new feature with task breakdowns, file impacts, and depen
 title: "[Feature]: "
 labels: ["enhancement"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        ### 🛑 Stop: Is this an Epic?
-        **Does this feature require code changes across MULTIPLE repositories?** (e.g., you need to update both the `frontend` and the `gateway` to ship this).
-        
-        * **If YES:** You are creating an Epic. Please click the **Labels** gear icon on the right sidebar and add the `epic` label before submitting. Also link the related inter-repository issues as sub-issues.
-        * **If NO or you do not know:** Do not add the Epic label. Proceed normally.
-
   - type: textarea
     id: problem
     attributes:
@@ -75,3 +66,11 @@ body:
           required: true
         - label: Documentation updated (Readme/API specs if applicable).
           required: false
+  - type: markdown
+    attributes:
+      value: |
+        ### 🛑 Stop: Is this an Epic?
+        **Does this feature require code changes across MULTIPLE repositories?** (e.g., you need to update both the `frontend` and the `gateway` to ship this).
+
+        * **If YES:** You are creating an Epic. Please click the **Labels** button below or the gear icon on the right sidebar and add the `epic` label before submitting. Also link the related inter-repository issues as sub-issues.
+        * **If NO or you do not know:** Do not add the Epic label. Proceed normally.
