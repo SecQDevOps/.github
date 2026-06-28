@@ -1,12 +1,16 @@
 name: 🚀 Developer Feature Request
 description: Propose a new feature with task breakdowns, file impacts, and dependencies.
 title: "[Feature]: "
-labels: ["enhancement", "feature", "needs-triage"]
+labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thank you for outlining this feature. Please ensure microservice blockers and file-level tasks are tracked accurately.
+        ### 🛑 Stop: Is this an Epic?
+        **Does this feature require code changes across MULTIPLE repositories?** (e.g., you need to update both the `frontend` and the `gateway` to ship this).
+        
+        * **If YES:** You are creating an Epic. Please click the **Labels** gear icon on the right sidebar and add the `epic` label before submitting. Also link the related inter-repository issues as sub-issues.
+        * **If NO or you do not know:** Do not add the Epic label. Proceed normally.
 
   - type: textarea
     id: problem
@@ -38,28 +42,14 @@ body:
       required: true
 
   - type: textarea
-    id: dependencies
-    attributes:
-      label: 🔗 Microservice Dependencies & Blockers
-      description: List any issues in other repositories that must be resolved before this feature can be completed.
-      value: |
-        - [ ] **Blocked by:** [Org/Repo-Name#IssueNumber](link) - *Brief description.*
-        
-        *(If none, please state "None")*
-    validations:
-      required: true
-
-  - type: textarea
     id: implementation
     attributes:
-      label: 🛠️ Implementation Plan & Tasks
-      description: Break down the implementation into actionable tasks. Specify the exact files to be created or modified.
+      label: 🛠️ Implementation Plan & Sub-tasks
+      description: If this is an Epic, outline the cross-repo issues here. If it is a standard feature, list the file changes.
       value: |
-        ### 1. Code Changes
-        - [ ] **Task 1:** [Describe the task]
-          - **Files to change/create:** `src/path/to/file.js`
-        - [ ] **Task 2:** [Describe the task]
-          - **Files to change/create:** `src/components/NewComponent.tsx`
+        ### Required Tasks
+        - [ ] Task 1...
+        - [ ] Task 2...
     validations:
       required: true
 
@@ -69,10 +59,8 @@ body:
       label: 🧪 Testing Requirements (Mandatory)
       description: All features must include comprehensive tests. List the test files affected.
       value: |
-        - [ ] **Unit Tests:** Verify individual functions and logic.
-          - **Files to create/modify:** `tests/unit/...`
-        - [ ] **Integration Tests:** Ensure microservice communication works as expected.
-          - **Files to create/modify:** `tests/integration/...`
+        - [ ] **Unit Tests:** `tests/unit/...`
+        - [ ] **Integration Tests:** `tests/integration/...`
     validations:
       required: true
 
@@ -83,25 +71,7 @@ body:
       options:
         - label: Code is implemented across all specified files.
           required: true
-        - label: Microservice blockers are resolved and merged.
-          required: true
         - label: Comprehensive test suite (Unit & Integration) passes with >= 80% coverage.
           required: true
         - label: Documentation updated (Readme/API specs if applicable).
           required: false
-
-  - type: textarea
-    id: alternatives
-    attributes:
-      label: 🔄 Alternatives Considered
-      description: Was there a simpler or different architectural approach you considered? Why was it rejected?
-    validations:
-      required: false
-
-  - type: textarea
-    id: context
-    attributes:
-      label: 📝 Additional Context
-      description: Add any architectural diagrams, API payload examples, or configuration changes needed here.
-    validations:
-      required: false

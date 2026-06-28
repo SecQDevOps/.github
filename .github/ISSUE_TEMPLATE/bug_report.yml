@@ -1,12 +1,16 @@
 name: 🐛 Bug Report
 description: Report a bug, crash, or unexpected behavior in the system.
 title: "[Bug]: "
-labels: ["bug", "needs-triage"]
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Please provide clear steps to reproduce the issue and note which microservices are involved.
+        ### 🛑 Stop: Is this an Epic?
+        **Does fixing this bug require coordinated pull requests across MULTIPLE repositories?** (e.g., a data flow bug that requires fixes in both the gateway repo and the edge-worker repo).
+        
+        * **If YES:** You are creating an Epic. Please click the **Labels** gear icon on the right sidebar and add the `epic` label before submitting. Also link the related inter-repository issues as sub-issues.
+        * **If NO or you do not know:** Do not add the Epic label. Proceed normally.
 
   - type: textarea
     id: bug-description
@@ -23,7 +27,7 @@ body:
       description: Exactly how can we reproduce this issue?
       value: |
         1. Go to '...'
-        2. Click on '....'
+        2. Prepare Data '....'
         3. Send API payload '....'
         4. See error
     validations:
@@ -43,8 +47,8 @@ body:
       label: 🌐 Environment & Microservices Involved
       description: Which microservices, OS, or browsers are affected?
       value: |
-        - **Microservice(s):** [e.g., auth-service, payment-gateway]
-        - **Environment:** [e.g., Staging, Production]
+        - **Microservice(s):** [e.g., gateway, reducer]
+        - **Environment:** [e.g., Docker, Native]
         - **Browser/OS:** [e.g., Chrome 114, Ubuntu 22.04]
     validations:
       required: true
@@ -56,7 +60,7 @@ body:
       description: How will this bug fix be tested to prevent regressions?
       value: |
         - [ ] **Regression Test:** Add test case to cover this specific failure.
-          - **File to modify:** `tests/integration/...`
+        - **File to modify:** `tests/integration/...`
     validations:
       required: true
 
