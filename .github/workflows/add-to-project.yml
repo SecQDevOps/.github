@@ -2,26 +2,38 @@ name: Auto-assign Issues & PRs to Org Project
 
 on:
   issues:
-    types: [opened, labeled]
+    types: [opened]
   pull_request:
-    # Triggers when a PR is opened, ready for review (draft to normal), or labeled
-    types: [opened, ready_for_review, labeled]
+    types: [opened, ready_for_review]
 
 jobs:
-  add-to-project:
-    name: Add item to project
+  add-and-sort:
+    name: Add item to project and set column
     runs-on: ubuntu-latest
     steps:
       - name: Add to GitHub Project
+        id: add-item
         uses: actions/add-to-project@v0.5.0
         with:
-          # Replace with your Organization Project URL
           project-url: https://github.com/orgs/SecQDevOps/projects/3
-
-          # A Personal Access Token (PAT) with 'project' scope is required
           github-token: ${{ secrets.PROJECT_AUTO_ADD_TOKEN }}
 
-          # OPTIONAL: Only add issues/PRs with these labels.
-          # If you want ALL PRs to be added automatically regardless of labels,
-          # delete the "labeled:" line entirely.
-          labeled: feature, bug, enhancement
+      - name: Move Issue to "inbox"
+        if: github.event_name == 'issues'
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_AUTO_ADD_TOKEN }}
+        run: |
+          gh project item-edit --id "${{ steps.add-item.outputs.itemId }}" \
+            --project-id "${{ steps.add-item.outputs.projectId }}" \
+            --field "Status" \
+            --single-select-option "inbox"
+
+      - name: Move PR to "review"
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_AUTO_ADD_TOKEN }}
+        run: |
+          gh project item-edit --id "${{ steps.add-item.outputs.itemId }}" \
+            --project-id "${{ steps.add-item.outputs.projectId }}" \
+            --field "Status" \
+            --single-select-option "review"
