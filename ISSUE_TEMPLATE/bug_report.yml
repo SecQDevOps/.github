@@ -1,0 +1,70 @@
+name: 🐛 Bug Report
+description: Report a bug, crash, or unexpected behavior in the system.
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please provide clear steps to reproduce the issue and note which microservices are involved.
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: 📝 Bug Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: 🔄 Steps to Reproduce
+      description: Exactly how can we reproduce this issue?
+      value: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Send API payload '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: ✨ Expected Behavior
+      description: What did you expect to happen instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 🌐 Environment & Microservices Involved
+      description: Which microservices, OS, or browsers are affected?
+      value: |
+        - **Microservice(s):** [e.g., auth-service, payment-gateway]
+        - **Environment:** [e.g., Staging, Production]
+        - **Browser/OS:** [e.g., Chrome 114, Ubuntu 22.04]
+    validations:
+      required: true
+
+  - type: textarea
+    id: testing-fix
+    attributes:
+      label: 🧪 Testing Requirements for Fix (Mandatory)
+      description: How will this bug fix be tested to prevent regressions?
+      value: |
+        - [ ] **Regression Test:** Add test case to cover this specific failure.
+          - **File to modify:** `tests/integration/...`
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 📜 Logs, Errors, or Screenshots
+      description: Paste any relevant logs, stack traces, or screenshots here.
+      render: shell
+    validations:
+      required: false
