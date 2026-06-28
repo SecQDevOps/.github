@@ -1,0 +1,107 @@
+name: 🚀 Developer Feature Request
+description: Propose a new feature with task breakdowns, file impacts, and dependencies.
+title: "[Feature]: "
+labels: ["enhancement", "feature", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for outlining this feature. Please ensure microservice blockers and file-level tasks are tracked accurately.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 📖 The Problem
+      description: What problem does this feature solve from a system or user perspective?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 💡 The Solution
+      description: What is the proposed solution and how does it work?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: feature-flag
+    attributes:
+      label: 🚩 Rollout Strategy / Feature Flag
+      description: Does this feature require a feature flag for a safe, gradual rollout?
+      options:
+        - "Yes - Requires a new feature flag"
+        - "Yes - Behind an existing feature flag"
+        - "No - Safe to release immediately"
+        - "Not Applicable"
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: 🔗 Microservice Dependencies & Blockers
+      description: List any issues in other repositories that must be resolved before this feature can be completed.
+      value: |
+        - [ ] **Blocked by:** [Org/Repo-Name#IssueNumber](link) - *Brief description.*
+        
+        *(If none, please state "None")*
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: 🛠️ Implementation Plan & Tasks
+      description: Break down the implementation into actionable tasks. Specify the exact files to be created or modified.
+      value: |
+        ### 1. Code Changes
+        - [ ] **Task 1:** [Describe the task]
+          - **Files to change/create:** `src/path/to/file.js`
+        - [ ] **Task 2:** [Describe the task]
+          - **Files to change/create:** `src/components/NewComponent.tsx`
+    validations:
+      required: true
+
+  - type: textarea
+    id: tests
+    attributes:
+      label: 🧪 Testing Requirements (Mandatory)
+      description: All features must include comprehensive tests. List the test files affected.
+      value: |
+        - [ ] **Unit Tests:** Verify individual functions and logic.
+          - **Files to create/modify:** `tests/unit/...`
+        - [ ] **Integration Tests:** Ensure microservice communication works as expected.
+          - **Files to create/modify:** `tests/integration/...`
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: dod
+    attributes:
+      label: ✅ Definition of Done (DoD)
+      options:
+        - label: Code is implemented across all specified files.
+          required: true
+        - label: Microservice blockers are resolved and merged.
+          required: true
+        - label: Comprehensive test suite (Unit & Integration) passes with >= 80% coverage.
+          required: true
+        - label: Documentation updated (Readme/API specs if applicable).
+          required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 🔄 Alternatives Considered
+      description: Was there a simpler or different architectural approach you considered? Why was it rejected?
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 📝 Additional Context
+      description: Add any architectural diagrams, API payload examples, or configuration changes needed here.
+    validations:
+      required: false
