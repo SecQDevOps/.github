@@ -5,7 +5,7 @@ Thank you for your interest in contributing to the SecQDevOps project and QNODE!
 ## Getting Started
 
 ### Fork & Branch
-- Fork the repository to your GitHub account.
+- Fork the repositories to your GitHub account.
 - Create a new branch for your work using descriptive names:
   - `feat/description` for new features
   - `fix/description` for bug fixes
@@ -81,7 +81,7 @@ Always consult the target repository's documentation for specific commands.
 
 ## Security
 
-If you discover a security vulnerability, please do **not** open a public issue. Instead, report it privately to [security@secqdevops.eu](mailto:security@secqdevops.eu). See our [SECURITY.md](./SECURITY.md) for details.
+If you discover a security vulnerability, please do **not** open a public issue. Instead, report it privately to [secqdevops@hs-rm.de](mailto:secqdevops@hs-rm.de). See our [SECURITY.md](./SECURITY.md) for details.
 
 ## Questions?
 

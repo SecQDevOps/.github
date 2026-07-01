@@ -4,7 +4,7 @@
 
 We take the security of QNODE and the SecQDevOps platform seriously. If you discover a security vulnerability, please report it **privately** to:
 
-📧 **[security@secqdevops.eu](mailto:security@secqdevops.eu)**
+📧 **[secqdevops@hs-rm.de](mailto:secqdevops@hs-rm.de)**
 
 ### Please Do Not
 
@@ -39,6 +39,6 @@ Security updates are provided for the latest released version of QNODE. The proj
 
 ## Questions?
 
-For security-related questions or clarifications, contact [security@secqdevops.eu](mailto:security@secqdevops.eu).
+For security-related questions or clarifications, contact [secqdevops@hs-rm.de](mailto:secqdevops@hs-rm.de).
 
 Thank you for helping us keep QNODE and SecQDevOps secure!
