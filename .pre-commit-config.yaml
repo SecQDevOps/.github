@@ -1,5 +1,6 @@
 # Pre-commit hooks for the SecQDevOps .github (org profile / templates) repo.
 # Docs/config repo: cross-cutting hygiene + secrets + commit-msg + shellcheck.
+# The commit message is auto-fixed, then validated.
 # Install once:  pip install pre-commit && pre-commit install --install-hooks
 default_stages: [pre-commit]
 default_install_hook_types: [pre-commit, commit-msg, pre-push]
@@ -27,6 +28,15 @@ repos:
     hooks:
       - id: gitleaks
 
+  # commit-msg: auto-fix first (mandatory scope + strip attribution), then validate.
+  - repo: local
+    hooks:
+      - id: commit-msg-autofix
+        name: normalize commit message (scope + strip attribution)
+        language: system
+        stages: [commit-msg]
+        entry: python3 .hooks/commit-msg-autofix.py --scope org
+
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.20.0 # pin latest
     hooks:
@@ -38,11 +48,3 @@ repos:
     rev: v0.10.0.1 # pin latest
     hooks:
       - id: shellcheck
-
-  - repo: local
-    hooks:
-      - id: forbid-attribution-trailers
-        name: forbid Co-Authored-By / AI attribution (engineering_rules §14)
-        language: pygrep
-        stages: [commit-msg]
-        entry: '(?im)(^co-authored-by:|co-worked by|^generated (with|by)|🤖)'
