@@ -51,7 +51,7 @@ def normalize_scope(scope: str) -> str:
     return s
 
 
-def fix_subject(subject: str, repo_scope: str, strip: bool, log: list[str]) -> str:
+def fix_subject(subject: str, repo_scope: str, strip: bool, log: list[str], force_scope: bool) -> str:
     """Normalize the Conventional-Commits header; return the possibly-rewritten line."""
     m = _HEADER.match(subject)
     if not m:
@@ -81,6 +81,9 @@ def fix_subject(subject: str, repo_scope: str, strip: bool, log: list[str]) -> s
             log.append(f"normalized scope: ({scope}) -> ({new_scope})")
 
     bang = "!" if breaking else ""
+    if force_scope:
+        new_scope = repo_scope
+        log.append(f"forced scope: ({scope}) -> ({new_scope})")
     return f"{new_type}({new_scope}){bang}: {desc}"
 
 
@@ -88,12 +91,20 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--scope", required=True, help="canonical scope for this repo")
     parser.add_argument(
+        "--force-scope",
+        dest="force_scope",
+        action="store_true",
+        required=False,
+        help="force scope replace"
+        )
+    parser.add_argument(
         "--no-strip",
         dest="strip",
         action="store_false",
         help="keep an existing scope verbatim (do not strip qnode- prefixes; e.g. qnode-at-home)",
     )
     parser.set_defaults(strip=True)
+    parser.set_defaults(force_scope=True)
     parser.add_argument("msgfile", help="path to the commit message file")
     args = parser.parse_args()
 
@@ -114,7 +125,7 @@ def main() -> int:
     # 2. normalize the subject (first non-blank, non-comment line).
     for i, line in enumerate(lines):
         if line.strip() and not line.startswith("#"):
-            lines[i] = fix_subject(line, args.scope, args.strip, log)
+            lines[i] = fix_subject(line, args.scope, args.strip, log, args.force_scope)
             break
 
     while lines and lines[-1].strip() == "":  # tidy trailing blanks
