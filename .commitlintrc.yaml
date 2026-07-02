@@ -1,0 +1,8 @@
+# Conventional Commits 1.0.0 enforcement (https://www.conventionalcommits.org/en/v1.0.0/).
+# Used by the commitlint pre-commit hook (commit-msg stage).
+extends: ["@commitlint/config-conventional"]
+rules:
+  type-enum:
+    - 2
+    - always
+    - [feat, fix, build, chore, ci, docs, style, refactor, perf, test, revert]

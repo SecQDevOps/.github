@@ -1,2 +1,5 @@
 # Shell scripts must stay LF-terminated for curl | sh.
 *.sh text eol=lf
+# Tooling configs / workflows stay LF (matches the mixed-line-ending pre-commit hook).
+*.yaml text eol=lf
+*.yml text eol=lf

@@ -1,0 +1,47 @@
+name: pre-commit
+
+# Reusable org-wide workflow: runs the repo's pre-commit hooks (pre-commit stage:
+# hygiene, secrets, formatting) across all files. Complements — does not replace —
+# each repo's language lint/type/test jobs. Call it from a repo's ci.yml with:
+#   pre-commit:
+#     uses: SecQDevOps/.github/.github/workflows/pre-commit.yml@main
+on:
+  workflow_call: {}
+
+permissions:
+  contents: read
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Python is always needed to run pre-commit itself (ruff ships isolated).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      # Toolchains for the local format hooks, installed only when relevant.
+      - if: ${{ hashFiles('go.mod') != '' }}
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - if: ${{ hashFiles('go.mod') != '' }}
+        run: |
+          go install mvdan.cc/gofumpt@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - if: ${{ hashFiles('Cargo.toml') != '' }}
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - if: ${{ hashFiles('package.json') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - if: ${{ hashFiles('package-lock.json') != '' }}
+        run: npm ci
+
+      - uses: pre-commit/action@v3.0.1

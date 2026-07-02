@@ -48,6 +48,32 @@ Before opening a pull request, ensure your code passes all quality checks:
    - Each repository documents its linting and formatting tools in its README or CLAUDE.md.
    - Run formatters locally before committing.
 
+## Pre-commit hooks
+
+Every repository ships a `.pre-commit-config.yaml`. Install the hooks once per clone:
+
+```bash
+pip install pre-commit
+pre-commit install --install-hooks   # wires the pre-commit, commit-msg, and pre-push stages
+```
+
+What runs when:
+
+- **on `git commit`** — fast formatters + hygiene (trailing whitespace, EOF, line
+  endings, large files, private keys) + a `gitleaks` secret scan.
+- **on the commit message** — [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/)
+  is enforced via `commitlint`, plus a guard that rejects `Co-Authored-By` / AI
+  attribution trailers (single-author policy).
+- **on `git push`** — the heavier checks: lint, type-check, and tests (the same
+  Makefile/npm targets CI runs).
+
+Run them by hand anytime:
+
+```bash
+pre-commit run --all-files                      # commit-stage hooks
+pre-commit run --all-files --hook-stage pre-push  # heavy checks
+```
+
 ## Pull Request Process
 
 1. **Use the PR template:** When opening a pull request, fill out the provided template with:
