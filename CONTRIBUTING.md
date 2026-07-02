@@ -50,27 +50,42 @@ Before opening a pull request, ensure your code passes all quality checks:
 
 ## Pre-commit hooks
 
-Every repository ships a `.pre-commit-config.yaml`. Install the hooks once per clone:
+Every repository ships a `.pre-commit-config.yaml`. **Recommended — set up once per
+machine** so every *future* `git clone` installs the hooks automatically:
 
 ```bash
 pip install pre-commit
-pre-commit install --install-hooks   # wires the pre-commit, commit-msg, and pre-push stages
+pre-commit init-templatedir ~/.config/git/template \
+  --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
+git config --global init.templateDir ~/.config/git/template
+```
+
+For a repo you have **already** cloned (the template only applies to new clones),
+enable the hooks once with:
+
+```bash
+pre-commit install --install-hooks
 ```
 
 What runs when:
 
-- **on `git commit`** — fast formatters + hygiene (trailing whitespace, EOF, line
+- **on `git commit`** — fast formatters + hygiene (trailing whitespace, EOF, LF line
   endings, large files, private keys) + a `gitleaks` secret scan.
-- **on the commit message** — [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/)
-  is enforced via `commitlint`, plus a guard that rejects `Co-Authored-By` / AI
-  attribution trailers (single-author policy).
+- **on the commit message** — the message is **auto-fixed, not rejected**: the mandatory
+  [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) scope is set to
+  the repo name and `Co-Authored-By` / AI-attribution trailers are stripped (single-author
+  policy); `commitlint` then validates the result.
 - **on `git push`** — the heavier checks: lint, type-check, and tests (the same
   Makefile/npm targets CI runs).
+
+Hooks stay current on their own: a `git pull` that brings an updated
+`.pre-commit-config.yaml` (new tool versions, hooks, or the `commit-msg` auto-fix script)
+takes effect on your next commit — no re-install needed.
 
 Run them by hand anytime:
 
 ```bash
-pre-commit run --all-files                      # commit-stage hooks
+pre-commit run --all-files                        # commit-stage hooks
 pre-commit run --all-files --hook-stage pre-push  # heavy checks
 ```
 
