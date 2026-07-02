@@ -89,6 +89,22 @@ pre-commit run --all-files                        # commit-stage hooks
 pre-commit run --all-files --hook-stage pre-push  # heavy checks
 ```
 
+### Committing when a hook auto-fixes files
+
+pre-commit **aborts the first commit whenever a hook rewrites a file** (e.g. `ruff-format`
+reformats your code) — by design, so you can review auto-fixes before they land. The fixes
+are already applied to your working tree; just re-stage and commit again.
+
+To make that automatic, add this one-time git alias and use `git cf` instead of `git commit`:
+
+```bash
+git config --global alias.cf '!f() { s="$(git diff --cached --name-only)"; git commit "$@" && return 0; [ -n "$s" ] && git add -- $s; git commit "$@"; }; f "$@"'
+```
+
+`git cf -m "feat(scope): …"` re-stages the files you had staged and retries **once**, so the
+commit goes through when the fixers left nothing unfixable — and still blocks on real
+problems (a `gitleaks` hit, a non-fixable check, …).
+
 ## Pull Request Process
 
 1. **Use the PR template:** When opening a pull request, fill out the provided template with:
