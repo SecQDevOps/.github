@@ -15,16 +15,16 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Python is always needed to run pre-commit itself (ruff ships isolated).
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.x"
 
       # Toolchains for the local format hooks, installed only when relevant.
       - if: ${{ hashFiles('go.mod') != '' }}
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - if: ${{ hashFiles('go.mod') != '' }}
@@ -38,7 +38,7 @@ jobs:
           components: rustfmt, clippy
 
       - if: ${{ hashFiles('package.json') != '' }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "22"
       - if: ${{ hashFiles('package-lock.json') != '' }}
