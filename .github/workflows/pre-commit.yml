@@ -44,4 +44,35 @@ jobs:
       - if: ${{ hashFiles('package-lock.json') != '' }}
         run: npm ci
 
-      - uses: pre-commit/action@v3.0.1
+      # Cache the hook environments (pre-commit/action did this for us); we run
+      # pre-commit directly so we can render a readable summary of hook results.
+      - uses: actions/cache@v5
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Run pre-commit (+ job summary)
+        run: |
+          set +e
+          python -m pip install --quiet pre-commit
+          pre-commit run --all-files --show-diff-on-failure 2>&1 | tee out.txt
+          CODE=${PIPESTATUS[0]}
+          {
+            echo "## 🪝 pre-commit — hygiene, secrets, formatting"
+            if [ "$CODE" -eq 0 ]; then
+              echo "✅ All hooks passed."
+            else
+              echo "❌ One or more hooks failed (some may have auto-fixed files locally)."
+              echo ""
+              echo "| Hook | Result |"
+              echo "|:--|:--|"
+              sed -E 's/\x1b\[[0-9;]*m//g' out.txt \
+                | grep -E '\.\.\.*(Passed|Failed|Skipped)$' \
+                | sed -E 's/^(.*[^.])\.+(Passed|Failed|Skipped)$/| \1 | \2 |/' | head -50
+              echo ""
+              echo "<details><summary>Full output</summary>"; echo ""; echo '```'
+              sed -E 's/\x1b\[[0-9;]*m//g' out.txt | tail -c 30000
+              echo '```'; echo ""; echo "</details>"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$CODE"
