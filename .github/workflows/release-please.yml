@@ -1,0 +1,47 @@
+# Reusable release-please workflow (Conventional-Commits -> version bump PR -> tag + Release).
+# Each repo calls this from its own .github/workflows/release.yml and reads its
+# release-please-config.json / .release-please-manifest.json (manifest mode).
+name: release-please
+
+on:
+  workflow_call:
+    outputs:
+      release_created:
+        description: "true (string) when merging the release PR cut a new release"
+        value: ${{ jobs.release-please.outputs.release_created }}
+      tag_name:
+        description: "Tag of the new release, e.g. v0.2.0"
+        value: ${{ jobs.release-please.outputs.tag_name }}
+      version:
+        description: "Semver of the new release without the leading v, e.g. 0.2.0"
+        value: ${{ jobs.release-please.outputs.version }}
+      major:
+        value: ${{ jobs.release-please.outputs.major }}
+      minor:
+        value: ${{ jobs.release-please.outputs.minor }}
+      patch:
+        value: ${{ jobs.release-please.outputs.patch }}
+      sha:
+        description: "Commit SHA the release was tagged on"
+        value: ${{ jobs.release-please.outputs.sha }}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.rp.outputs.release_created }}
+      tag_name: ${{ steps.rp.outputs.tag_name }}
+      version: ${{ steps.rp.outputs.version }}
+      major: ${{ steps.rp.outputs.major }}
+      minor: ${{ steps.rp.outputs.minor }}
+      patch: ${{ steps.rp.outputs.patch }}
+      sha: ${{ steps.rp.outputs.sha }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: rp
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
