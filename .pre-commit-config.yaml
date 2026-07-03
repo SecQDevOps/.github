@@ -4,6 +4,9 @@
 # Install once:  pip install pre-commit && pre-commit install --install-hooks
 default_stages: [pre-commit]
 default_install_hook_types: [pre-commit, commit-msg, pre-push]
+# CI writes generated shields.io badges here; they ship without a trailing
+# newline, so keep the hygiene hooks from rewriting (and failing on) them.
+exclude: '^\.github/badges/'
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
