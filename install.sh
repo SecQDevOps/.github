@@ -4,8 +4,8 @@
 #   curl -fsSL https://raw.githubusercontent.com/SecQDevOps/.github/main/install.sh | sh
 #
 # Creates the QNODE workspace, clones the private harness carrier, and runs its
-# bootstrap (extract harness -> clone every repo as a sibling -> print the initial
-# agent prompt). Overridable via environment:
+# bootstrap (ensure uv is installed -> extract harness -> clone every repo as a
+# sibling -> print the initial agent prompt). Overridable via environment:
 #   QNODE_DIR       target workspace directory        (default: QNODE)
 #   QNODE_GIT_BASE  git remote base for the org       (default: git@github.com:SecQDevOps)
 set -eu

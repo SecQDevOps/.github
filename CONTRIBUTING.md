@@ -50,11 +50,13 @@ Before opening a pull request, ensure your code passes all quality checks:
 
 ## Pre-commit hooks
 
-Every repository ships a `.pre-commit-config.yaml`. **Recommended — set up once per
-machine** so every *future* `git clone` installs the hooks automatically:
+Every repository ships a `.pre-commit-config.yaml`. The QNODE toolchain is managed with
+[**uv**](https://docs.astral.sh/uv/#installation) (the workspace bootstrap installs it for
+you); install `pre-commit` as a uv-managed tool. **Recommended — set up once per machine**
+so every *future* `git clone` installs the hooks automatically:
 
 ```bash
-pip install pre-commit
+uv tool install pre-commit
 pre-commit init-templatedir ~/.config/git/template \
   --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
 git config --global init.templateDir ~/.config/git/template
