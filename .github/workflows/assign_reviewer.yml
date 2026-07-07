@@ -18,7 +18,7 @@ jobs:
           script: |
             const { owner, repo } = context.repo;
             const pull_number = context.issue.number;
-            const targetReviewer = 'JoeKae';
+            const targetReviewer = process.env.TARGET_REVIEWER;
             const creator = context.payload?.pull_request?.user?.login;
 
             if (!creator) {
