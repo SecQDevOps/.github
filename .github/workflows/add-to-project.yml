@@ -28,7 +28,7 @@ jobs:
             --field "Status" \
             --single-select-option "inbox"
 
-      - name: Move PR to "review"
+      - name: Move PR to "In review"
         if: github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.PROJECT_AUTO_ADD_TOKEN }}
@@ -36,4 +36,4 @@ jobs:
           gh project item-edit --id "${{ steps.add-item.outputs.itemId }}" \
             --project-id "${{ steps.add-item.outputs.projectId }}" \
             --field "Status" \
-            --single-select-option "review"
+            --single-select-option "In review"
