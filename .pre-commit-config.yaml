@@ -46,7 +46,10 @@ repos:
     hooks:
       - id: commitlint
         stages: [commit-msg]
-        additional_dependencies: ["@commitlint/config-conventional"]
+        # Pin config-conventional to the major matching this hook's commitlint
+        # core (v19); an unpinned newer major mismatches it, silently falls back
+        # to the angular parser, and rejects the breaking "!" marker (type(scope)!:).
+        additional_dependencies: ["@commitlint/config-conventional@^19"]
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1 # pin latest
