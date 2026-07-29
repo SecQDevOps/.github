@@ -45,3 +45,46 @@ jobs:
         id: rp
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      # release-please bumps the version in pyproject.toml but knows nothing
+      # about uv.lock, which pins the project's own version too. Left alone, the
+      # lock trails one line behind from the moment a release lands: the next
+      # `uv run` in any clone rewrites it and dirties the tree, and every branch
+      # cut afterwards carries the fix as unrelated noise. Re-locking here puts
+      # the bump and its lock in the same PR, so they merge together.
+      #
+      # A no-op in the Go, Rust and TypeScript repos that share this workflow --
+      # the steps are skipped when the release PR has no uv.lock.
+      - name: Check out the release PR branch
+        if: steps.rp.outputs.prs_created == 'true'
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ fromJSON(steps.rp.outputs.pr).headBranchName }}
+
+      - name: Look for a uv project
+        id: uv
+        if: steps.rp.outputs.prs_created == 'true'
+        run: echo "present=${{ hashFiles('uv.lock') != '' }}" >> "$GITHUB_OUTPUT"
+
+      - uses: astral-sh/setup-uv@v7
+        if: steps.uv.outputs.present == 'true'
+
+      - name: Sync uv.lock with the released version
+        if: steps.uv.outputs.present == 'true'
+        env:
+          BRANCH: ${{ fromJSON(steps.rp.outputs.pr).headBranchName }}
+        run: |
+          set -euo pipefail
+          uv lock
+          if git diff --quiet -- uv.lock; then
+            echo "uv.lock already matches the released version."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add uv.lock
+          git commit -m "chore: sync uv.lock with the released version"
+          # release-please force-pushes this branch whenever it refreshes the PR,
+          # which drops this commit. That is harmless: this step runs after every
+          # such refresh and simply re-applies it.
+          git push origin "HEAD:$BRANCH"
