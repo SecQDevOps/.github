@@ -55,11 +55,29 @@ jobs:
       #
       # A no-op in the Go, Rust and TypeScript repos that share this workflow --
       # the steps are skipped when the release PR has no uv.lock.
+      #
+      # Every fromJSON below is guarded with `|| '{}'`, and the guard is
+      # load-bearing rather than defensive. `pr` is an empty string on any push
+      # that does not cut a release PR, which is most pushes to main, and
+      # fromJSON('') fails the job with "Error reading JToken from JsonReader.
+      # Path '', line 0, position 0" attributed to this file.
+      #
+      # An `if:` does not protect against it. Observed: with prs_created false,
+      # the setup-uv step and the uv.lock step carry the identical condition
+      # `steps.uv.outputs.present == 'true'`, yet setup-uv skipped and the
+      # uv.lock step *failed* -- the only difference between them being that the
+      # latter has a step-level `env:`, which is evaluated before the condition.
+      # `with:` is evaluated after it, which is why the checkout step skipped
+      # cleanly despite holding the same expression. Guard both anyway: the
+      # distinction is invisible at the call site and does not survive someone
+      # moving an expression from one block to the other.
+      # ('' is falsy in GitHub expressions, so `pr || '{}'` yields '{}', and
+      # fromJSON('{}').headBranchName is null, i.e. an empty string.)
       - name: Check out the release PR branch
         if: steps.rp.outputs.prs_created == 'true'
         uses: actions/checkout@v5
         with:
-          ref: ${{ fromJSON(steps.rp.outputs.pr).headBranchName }}
+          ref: ${{ fromJSON(steps.rp.outputs.pr || '{}').headBranchName }}
 
       - name: Look for a uv project
         id: uv
@@ -72,7 +90,7 @@ jobs:
       - name: Sync uv.lock with the released version
         if: steps.uv.outputs.present == 'true'
         env:
-          BRANCH: ${{ fromJSON(steps.rp.outputs.pr).headBranchName }}
+          BRANCH: ${{ fromJSON(steps.rp.outputs.pr || '{}').headBranchName }}
         run: |
           set -euo pipefail
           uv lock
