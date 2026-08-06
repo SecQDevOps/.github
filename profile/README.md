@@ -56,15 +56,16 @@ Once these audits are complete, the repositories will be made public here. Watch
 
 ## 📦 Repository Map
 
-| Repository                                                                             | Language/Tech | Role                                                                                        |
-|----------------------------------------------------------------------------------------|---------------|---------------------------------------------------------------------------------------------|
-| [qnode-backend-gateway](https://github.com/SecQDevOps/qnode-backend-gateway)           | Go            | HTTP API gateway; entry point for circuit submission and result retrieval                   |
-| [qnode-backend-orchestrator](https://github.com/SecQDevOps/qnode-backend-orchestrator) | Python        | Temporal-based workflow orchestration; manages circuit decomposition and task distribution  |
-| [qnode-backend-slicer](https://github.com/SecQDevOps/qnode-backend-slicer)             | Python        | Tensor network slicing; decomposes quantum circuits into independent contractions           |
-| [qnode-backend-reducer](https://github.com/SecQDevOps/qnode-backend-reducer)           | Rust          | High-performance result aggregation; combines partial results from edge workers             |
-| [qnode-edge-worker](https://github.com/SecQDevOps/qnode-edge-worker)                   | Python        | Edge compute node; pulls tasks and contracts tensor slices on classical CPU/GPU (QPU-ready) |
-| [qnode-tooling-frontend](https://github.com/SecQDevOps/qnode-tooling-frontend)         | TypeScript    | Web UI for researchers; submit circuits, monitor jobs, retrieve results                     |
-| [qnode-at-home](https://github.com/SecQDevOps/qnode-at-home)                           | Docker/K8s    | Deployments                                                                                 |
+| Repository                                                                                 | Language/Tech | Role                                                                                        |
+|--------------------------------------------------------------------------------------------|---------------|---------------------------------------------------------------------------------------------|
+| [qnode-backend-gateway](https://github.com/SecQDevOps/qnode-backend-gateway)               | Go            | HTTP API gateway; entry point for circuit submission and result retrieval                   |
+| [qnode-backend-orchestrator](https://github.com/SecQDevOps/qnode-backend-orchestrator)     | Python        | Temporal-based workflow orchestration; manages circuit decomposition and task distribution  |
+| [qnode-backend-slicer](https://github.com/SecQDevOps/qnode-backend-slicer)                 | Python        | Tensor network slicing; decomposes quantum circuits into independent contractions           |
+| [qnode-backend-task-generator](https://github.com/SecQDevOps/qnode-backend-task-generator) | Python        | Expands a slicing plan into independent tasks and dispatches them to the work queue         |
+| [qnode-backend-reducer](https://github.com/SecQDevOps/qnode-backend-reducer)               | Rust          | High-performance result aggregation; combines partial results from edge workers             |
+| [qnode-edge-worker](https://github.com/SecQDevOps/qnode-edge-worker)                       | Python        | Edge compute node; pulls tasks and contracts tensor slices on classical CPU/GPU (QPU-ready) |
+| [qnode-tooling-frontend](https://github.com/SecQDevOps/qnode-tooling-frontend)             | TypeScript    | Web UI for researchers; submit circuits, monitor jobs, retrieve results                     |
+| [qnode-at-home](https://github.com/SecQDevOps/qnode-at-home)                               | Docker/K8s    | Deployments                                                                                 |
 
 ## 🔬 Our Core Pillars
 
