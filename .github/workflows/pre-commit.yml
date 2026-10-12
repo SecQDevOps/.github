@@ -41,7 +41,17 @@ jobs:
 
       # Cache the hook environments (pre-commit/action did this for us); we run
       # pre-commit directly so we can render a readable summary of hook results.
-      - uses: actions/cache@v5
+      #
+      # Restored on every run, saved only from the default branch. The cache is
+      # 1.1-1.6 GB, and GitHub scopes a cache to the branch that saved it, so
+      # saving from every PR branch uploaded a fresh copy per branch. On the
+      # self-hosted runners one save took 18 minutes, holding the runner the
+      # whole time, and the reducer's copies pushed it past the 10 GB per-repo
+      # limit, where evictions force yet more uploads. A PR branch restores the
+      # default branch's copy instead; until main has saved one, it installs the
+      # hooks itself and keeps them for the job only.
+      - id: pre-commit-cache
+        uses: actions/cache/restore@v5
         with:
           path: ~/.cache/pre-commit
           key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
@@ -74,3 +84,14 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
           exit "$CODE"
+
+      # Only a push to the default branch writes the cache, and only when the
+      # restore above missed: an exact hit means this key is already stored.
+      - if: >-
+          github.event_name == 'push'
+          && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+          && steps.pre-commit-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ steps.pre-commit-cache.outputs.cache-primary-key }}
