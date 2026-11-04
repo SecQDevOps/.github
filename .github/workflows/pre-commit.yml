@@ -27,8 +27,14 @@ jobs:
           go install mvdan.cc/gofumpt@latest
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
+      # An exact version, not `stable`: this action ends with `rustup default`,
+      # and on the self-hosted runners `/runner/.rust` is one Rust home that
+      # every repository's jobs share, so a channel would move the default under
+      # all of them each time a new stable ships. The @rev picks the version.
+      # Keep it equal to the reducer's rust-toolchain.toml channel (the org's
+      # only root Cargo.toml), which overrides it inside that checkout anyway.
       - if: ${{ hashFiles('Cargo.toml') != '' }}
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@1.99.1
         with:
           components: rustfmt, clippy
 
