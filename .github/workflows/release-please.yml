@@ -46,6 +46,35 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      # A branch at the release's own commit, so a fix to it can be forked from
+      # there while main moves on. Named for the tag: release/v3.1.2.
+      #
+      # It never fails the job. The release exists by now, and the callers' image
+      # jobs need this one: a release without its branch is a branch to create by
+      # hand, and one without its images is no release. So a branch that could not
+      # be created is an error annotation on a green job, with the command in it.
+      #
+      # Created through the API rather than pushed, which also means it starts no
+      # workflow: what it holds was built when the release was.
+      - name: Create the release branch
+        if: steps.rp.outputs.release_created == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.rp.outputs.tag_name }}
+          SHA: ${{ steps.rp.outputs.sha }}
+        run: |
+          branch="release/$TAG"
+          at=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$branch" --jq .object.sha 2>/dev/null) || at=""
+          if [ "$at" = "$SHA" ]; then
+            echo "$branch is already at $SHA."
+          elif [ -n "$at" ]; then
+            echo "::error title=Release branch not created::$branch exists at $at, and the release is at $SHA. Move it or name the fix's branch differently; nothing here moves a branch."
+          elif gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" -f "ref=refs/heads/$branch" -f "sha=$SHA" > /dev/null; then
+            echo "Created \`$branch\` at \`$SHA\`." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error title=Release branch not created::Create it by hand: git push origin $SHA:refs/heads/$branch"
+          fi
+
       # release-please bumps the version in pyproject.toml but knows nothing
       # about uv.lock, which pins the project's own version too. Left alone, the
       # lock trails one line behind from the moment a release lands: the next

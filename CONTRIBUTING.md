@@ -121,6 +121,20 @@ problems (a `gitleaks` hit, a non-fixable check, …).
 
 4. **All checks must pass:** Ensure CI/CD pipelines, tests, and status checks are green before merge.
 
+## Releases, Release Branches and Candidates
+
+- **A release** is cut by release-please when its release pull request is merged. It also
+  creates a branch at the released commit, `release/v3.1.2`, so a fix to that release is forked
+  from there while `main` moves on.
+- **A release candidate** is made by hand: *Actions → Release candidate → Run workflow*, on the
+  branch to make one of. It is named for the version that branch would release next, counted up:
+  the branch `rc/v3.1.2-rc-1` and, in a repository that publishes images, the image tag
+  `3.1.2-rc-1`. It makes no tag and no GitHub release, so it changes nothing about the release
+  itself, its name included. A branch with nothing to release is refused.
+- **A candidate of the system** is `qnode-at-home`'s: its branch pins the images of the commits
+  its `src/` submodules are at, each a published release or a candidate. Make the services'
+  candidates first.
+
 ## Multi-Language Projects
 
 This is a polyglot codebase spanning Go, Rust, Python, and TypeScript. Each language has its own toolchain and conventions:
