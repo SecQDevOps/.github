@@ -1,0 +1,134 @@
+# Reusable release-candidate workflow: a branch, and optionally an image, for what
+# the next release would be.
+#
+# A candidate is named for the version the next release of the chosen branch would
+# carry -- asked of release-please, which will cut that release -- and counted up:
+# rc/v3.1.2-rc-1, then rc/v3.1.2-rc-2. It is a branch and images only. It makes no
+# tag and no GitHub release: release-please takes the newest release as the point
+# to count commits from, and a release's name is chosen when it is published, so a
+# candidate must be invisible to both.
+#
+# Callers run it by hand (workflow_dispatch) on the branch they want a candidate of,
+# and pass the image they publish, or none where the images are built elsewhere.
+name: release-candidate
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        description: "Image to build from ./Dockerfile and push as ghcr.io/secqdevops/<image>:<version>; empty for none"
+        type: string
+        default: ""
+      runner:
+        description: "Runner the image is built on"
+        type: string
+        default: self-hosted
+      create_branch:
+        description: "Create the branch here. False for a caller that commits onto it before it exists"
+        type: boolean
+        default: true
+    outputs:
+      version:
+        description: "The candidate's version without the leading v, e.g. 3.1.2-rc-1; also its image tag"
+        value: ${{ jobs.candidate.outputs.version }}
+      branch:
+        description: "The candidate's branch, e.g. rc/v3.1.2-rc-1"
+        value: ${{ jobs.candidate.outputs.branch }}
+
+jobs:
+  candidate:
+    name: name the candidate
+    runs-on: self-hosted
+    # Two candidates named at once would both read the same highest number.
+    concurrency:
+      group: release-candidate-${{ github.repository }}
+      cancel-in-progress: false
+    permissions:
+      contents: write # create the branch
+      pull-requests: read # release-please reads the pull requests of the commits
+    outputs:
+      version: ${{ steps.name.outputs.version }}
+      branch: ${{ steps.name.outputs.branch }}
+    steps:
+      - name: Check that this ran on a branch
+        run: |
+          if [ "$GITHUB_REF_TYPE" != "branch" ]; then
+            echo "::error::Run this on a branch, not on $GITHUB_REF: the next version is counted from a branch's commits."
+            exit 1
+          fi
+
+      # The version script lives beside this workflow, in a public repository.
+      - uses: actions/checkout@v5
+        with:
+          repository: SecQDevOps/.github
+          ref: main
+          path: org
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # Pinned: the version release-please-action v5 resolves to for this
+      # repository's releases is 17.x, and a candidate has to agree with it.
+      # --ignore-scripts because nothing it installs needs one to run.
+      - name: Install release-please
+        run: |
+          npm install --prefix "$RUNNER_TEMP/release-please" --no-save --ignore-scripts --no-audit --no-fund \
+            release-please@17.11.2
+
+      - name: Name the candidate
+        id: name
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_PATH: ${{ runner.temp }}/release-please/node_modules
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          next=$(node org/scripts/next-version.cjs)
+          version=$(gh api --paginate "repos/$GITHUB_REPOSITORY/git/matching-refs/heads/rc/v$next-rc-" --jq '.[].ref' \
+            | bash org/scripts/next-candidate.sh "$next")
+          {
+            echo "version=$version"
+            echo "branch=rc/v$version"
+          } >> "$GITHUB_OUTPUT"
+          echo "Next release of \`$BRANCH\`: \`$next\`. Candidate: \`$version\`." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create the branch
+        if: inputs.create_branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RC_BRANCH: ${{ steps.name.outputs.branch }}
+        run: |
+          set -euo pipefail
+          gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" \
+            -f "ref=refs/heads/$RC_BRANCH" -f "sha=$GITHUB_SHA" > /dev/null
+          echo "Created \`$RC_BRANCH\` at \`$GITHUB_SHA\`." >> "$GITHUB_STEP_SUMMARY"
+
+  image:
+    needs: candidate
+    if: inputs.image != ''
+    runs-on: ${{ inputs.runner }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      # The commit the candidate was named from, whatever the branch holds by now.
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # Never :latest, which is the newest release.
+      - name: Build and push image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ghcr.io/secqdevops/${{ inputs.image }}:${{ needs.candidate.outputs.version }}
